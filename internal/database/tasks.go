@@ -115,3 +115,26 @@ func (s *TaskStore) Update(id int, input models.UpdateTaskInput) (*models.Task, 
 
 	return &updatedTask, nil
 }
+
+func (s *TaskStore) Delete(id int) error {
+	query := `
+	DELETE FROM tasks
+	where id = $1;
+	`
+
+	result, err := s.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return fmt.Errorf("task with id %d not found", id)
+	}
+
+	return nil
+}
