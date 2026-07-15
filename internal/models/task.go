@@ -1,3 +1,4 @@
+// Package models defines the data structures used by the application.
 package models
 
 import "time"
@@ -8,7 +9,7 @@ type Task struct {
 	Description string    `json:"description" db:"description"`
 	Completed   bool      `json:"completed" db:"completed"`
 	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updatd_at" db:"updated_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
 }
 
 type CreateTaskInput struct {

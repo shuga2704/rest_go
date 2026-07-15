@@ -23,7 +23,8 @@ func (s *TaskStore) GetAll() ([]models.Task, error) {
 	var tasks []models.Task
 
 	query := `
-	SELECT id, title, description, completed, createdAt, updatedAt
+	SELECT id, title, description, completed,
+		createdAt AS created_at, updatedAt AS updated_at
 	FROM tasks
 	order by createdAt desc;
 	`
@@ -40,7 +41,8 @@ func (s *TaskStore) GetByID(id int) (*models.Task, error) {
 	var task models.Task
 
 	query := `
-	SELECT id, title, description, completed, createdAt, updatedAt
+	SELECT id, title, description, completed,
+		createdAt AS created_at, updatedAt AS updated_at
 	FROM tasks
 	where id = $1;
 	`
@@ -64,7 +66,8 @@ func (s *TaskStore) Create(input *models.CreateTaskInput) (*models.Task, error) 
 	query := `
 	INSERT INTO tasks (title, description, completed, createdAt, updatedAt)
 	VALUES ($1, $2, $3, $4, $5)
-	returning id, title, description, completed, createdAt, updatedAt;
+	RETURNING id, title, description, completed,
+		createdAt AS created_at, updatedAt AS updated_at;
 	`
 
 	now := time.Now()
@@ -101,14 +104,15 @@ func (s *TaskStore) Update(id int, input models.UpdateTaskInput) (*models.Task, 
 
 	query := `
 	UPDATE tasks
-	SET title = $1, description = $2, completed = $3, updated_at = $4
+	SET title = $1, description = $2, completed = $3, updatedAt = $4
 	where id = $5
-	returning id, title, description, completed, createdAt, updatedAt;
+	RETURNING id, title, description, completed,
+		createdAt AS created_at, updatedAt AS updated_at;
 	`
 
 	var updatedTask models.Task
 
-	err = s.db.QueryRowx(query, task.Title, task.Description, task.Completed, task.CreatedAt, task.UpdatedAt, id).StructScan(&updatedTask)
+	err = s.db.QueryRowx(query, task.Title, task.Description, task.Completed, task.UpdatedAt, id).StructScan(&updatedTask)
 	if err != nil {
 		return nil, err
 	}

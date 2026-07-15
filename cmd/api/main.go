@@ -12,7 +12,7 @@ import (
 func main() {
 	databaseURL := os.Getenv("DATABASE_URL")
 	if databaseURL == "" {
-		databaseURL = "postgres://taskuser:taskpass@localhost:5432/tasksdb?"
+		databaseURL = "postgres://taskuser:taskpass@localhost:5433/tasksdb?sslmode=disable"
 	}
 
 	serverPort := os.Getenv("SERVER_PORT")
@@ -37,8 +37,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/tasks/", methodHandler(handler.GetAllTasks, "GET"))
-	mux.HandleFunc("/tasks/create", methodHandler(handler.GetAllTasks, "POST"))
+	mux.HandleFunc("/tasks", methodHandler(handler.GetAllTasks, "GET"))
+	mux.HandleFunc("/tasks/create", methodHandler(handler.CreateTask, "POST"))
 	mux.HandleFunc("/tasks/", taskIDHandler(handler))
 
 	loggedMux := loggingMiddleware(mux)
@@ -55,6 +55,7 @@ func methodHandler(handlerFunc http.HandlerFunc, allowedMethod string) http.Hand
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != allowedMethod {
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
 		}
 
 		handlerFunc(w, r)
@@ -72,6 +73,7 @@ func taskIDHandler(handler *handlers.Handlers) http.HandlerFunc {
 			handler.DeleteTask(w, r)
 		default:
 			http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+			return
 		}
 	}
 }
