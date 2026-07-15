@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: tasks_postgres
+    environment: 
+      POSTGRES_DB: tasksdb
+      POSTGRES_USER: taskuser
+      POSTGRES_PASSWORD: taskpass
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  postgres_data:
+
